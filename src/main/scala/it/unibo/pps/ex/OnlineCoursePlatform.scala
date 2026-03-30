@@ -11,8 +11,9 @@ trait Course:
   def category: String // e.g., "Programming", "Data Science", "Design"
 
 object Course:
+  private case class CourseImpl(courseId: String, title: String, instructor: String, category: String) extends Course
   // Factory method for creating Course instances
-  def apply(courseId: String, title: String, instructor: String, category: String): Course = ???
+  def apply(courseId: String, title: String, instructor: String, category: String): Course = CourseImpl(courseId, title, instructor, category)
 /**
  * Manages courses and student enrollments on an online learning platform.
  */
