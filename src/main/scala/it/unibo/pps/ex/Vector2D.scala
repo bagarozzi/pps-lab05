@@ -1,6 +1,6 @@
 package it.unibo.pps.ex
 
-import scala.math.sqrt // Needed for magnitude calculation
+import scala.math.{pow, sqrt} // Needed for magnitude calculation
 
 // Represents a vector in 2D space
 // Structure: x-component and y-component
@@ -24,8 +24,20 @@ trait Vector2D:
   def magnitude: Double
 
 object Vector2D:
-  // Factory method to create Vector2D instances
-  def apply(x: Double, y: Double): Vector2D = ???
+  def apply(x: Double, y: Double): Vector2D = Vector2DImpl(x, y)
+  
+  private class Vector2DImpl(val x: Double, val y: Double) extends Vector2D {
+
+    override def +(other: Vector2D): Vector2D = Vector2DImpl(x + other.x, y + other.y)
+
+    override def -(other: Vector2D): Vector2D = Vector2DImpl(x - other.x, y - other.y)
+
+    override def *(scalar: Double): Vector2D = Vector2DImpl(x * scalar, y * scalar)
+
+    override def dot(other: Vector2D): Double = this.x * other.x + this.y * other.y
+
+    override def magnitude: Double = math.sqrt(math.pow(x, 2) + math.pow(y, 2))
+  }
 
   // Common vectors (optional but nice)
   val zero: Vector2D = apply(0.0, 0.0)
