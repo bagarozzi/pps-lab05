@@ -27,7 +27,7 @@ object Sequences: // Essentially, generic linkedlists
       def head: Optional[A] = sequence match
         case Cons(h, _) => Just(h)
         case _ => Empty()
-
+        
       def concat(other: Sequence[A]): Sequence[A] = sequence match
         case Cons(h, t) => Cons(h, t.concat(other))
         case _ => other

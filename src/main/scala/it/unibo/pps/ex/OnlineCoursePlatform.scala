@@ -1,7 +1,10 @@
 package it.unibo.pps.ex
 
 import it.unibo.pps.util.Optionals.Optional
-import it.unibo.pps.util.Sequences.* // Assuming Sequence and related methods are here
+import it.unibo.pps.util.Sequences.*
+
+import scala.collection.mutable
+import scala.collection.mutable.Set
 
 // Represents a course offered on the platform
 trait Course:
@@ -87,7 +90,89 @@ end OnlineCoursePlatform
 
 object OnlineCoursePlatform:
   // Factory method for creating an empty platform instance
-  def apply(): OnlineCoursePlatform = ??? // Fill Here!
+  def apply(): OnlineCoursePlatform = OnlineCoursePlatformImpl()
+
+  private class OnlineCoursePlatformImpl() extends OnlineCoursePlatform {
+
+    private case class Enrollment(student: String, course: String)
+    private var courses: Sequence[Course] = Sequence()
+    private var enrollments: Sequence[Enrollment] = Sequence()
+    /**
+     * Adds a new course to the platform's catalog.
+     *
+     * @param course The course to add.
+     */
+    override def addCourse(course: Course): Unit = courses = if !courses.contains(course) then courses.concat(Sequence(course)) else return
+
+    /**
+     * Finds courses belonging to a specific category.
+     *
+     * @param category The category to search for.
+     * @return A sequence of courses in that category.
+     */
+    override def findCoursesByCategory(category: String): Sequence[Course] = courses.filter(c => c.category == category)
+
+    /**
+     * Retrieves a specific course by its unique ID.
+     *
+     * @param courseId The ID of the course to retrieve.
+     * @return An Optional containing the course if found, otherwise Optional.empty.
+     */
+    override def getCourse(courseId: String): Optional[Course] = courses.find(c => c.courseId == courseId)
+
+    /**
+     * Removes a course from the platform's catalog.
+     * (Note: This basic version doesn't handle cascading removal of enrollments).
+     *
+     * @param course The course to remove.
+     */
+    override def removeCourse(course: Course): Unit = courses = courses.filter(c => course != c)
+
+    /**
+     * Checks if a course with the given ID exists in the catalog.
+     *
+     * @param courseId The ID to check.
+     * @return true if the course exists, false otherwise.
+     */
+    override def isCourseAvailable(courseId: String): Boolean = getCourse(courseId) match
+      case Optional.Just(c) => true
+      case _ => false
+
+    /**
+     * Enrolls a student in a specific course.
+     * Assumes studentId is unique for each student.
+     *
+     * @param studentId The ID of the student.
+     * @param courseId  The ID of the course to enroll in.
+     *                  Fails silently if the course doesn't exist.
+     */
+    override def enrollStudent(studentId: String, courseId: String): Unit = enrollments = enrollments.concat(Sequence(Enrollment(studentId, courseId)))
+
+    /**
+     * Unenrolls a student from a specific course.
+     *
+     * @param studentId The ID of the student.
+     * @param courseId  The ID of the course to unenroll from.
+     */
+    override def unenrollStudent(studentId: String, courseId: String): Unit = enrollments = enrollments.filter(en => en.course != courseId)
+
+    /**
+     * Retrieves all courses a specific student is enrolled in.
+     *
+     * @param studentId The ID of the student.
+     * @return A sequence of courses the student is enrolled in.
+     */
+    override def getStudentEnrollments(studentId: String): Sequence[Course] = courses
+
+    /**
+     * Checks if a student is enrolled in a specific course.
+     *
+     * @param studentId The ID of the student.
+     * @param courseId  The ID of the course.
+     * @return true if the student is enrolled, false otherwise.
+     */
+    override def isStudentEnrolled(studentId: String, courseId: String): Boolean = enrollments.contains(Enrollment(studentId, courseId))
+}
 
 /**
  * Represents an online learning platform that offers courses and manages student enrollments.
